@@ -16,9 +16,6 @@ Documents.prototype.init = function() {
         this.web3 = new Web3(ethereum);
         var contractAddress = '0x4B57233D6ce1560cDe194571Cd26dF1ffBb816a8';
 
-        console.log(this.web3.utils.soliditySha3("document1"));
-        console.log(this.web3.utils.soliditySha3("document2"));
-
         ethereum.enable().then(function (accounts) {
             // Create the contract instance for the specific address provided in the configuration
             that.instance = new that.web3.eth.Contract([{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"documents","outputs":[{"internalType":"address","name":"submitter","type":"address"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint256","name":"blockNumber","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"bytes32","name":"hash","type":"bytes32"}],"name":"addDocument","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}], contractAddress);
