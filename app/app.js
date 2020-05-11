@@ -14,7 +14,7 @@ Documents.prototype.init = function() {
     if (typeof window.ethereum !== 'undefined') {
         var that = this;
         this.web3 = new Web3(ethereum);
-        var contractAddress = '0x13c509AF5a71125Cb12019082500E610b73353ff';
+        var contractAddress = '0x4B57233D6ce1560cDe194571Cd26dF1ffBb816a8';
 
         console.log(this.web3.utils.soliditySha3("document1"));
         console.log(this.web3.utils.soliditySha3("document2"));
