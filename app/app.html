@@ -4,15 +4,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="./app.css">
         <script type="text/javascript" src="https://unpkg.com/jquery@3.5.1/dist/jquery.js"></script>
         <script type="text/javascript" src="https://unpkg.com/web3@1.2.7/dist/web3.min.js"></script>
-
-        <title>Proof of Existence</title>
-        <!-- The generated javascript and app.js will be substituted in below -->
-        <!-- JAVASCRIPT -->
-
-        <!-- The app.css contents will be substituted in below -->
-        <!-- STYLE -->
+        <script type="text/javascript" src="./app.js"></script>
+        <title>Proof of existence</title>
     </head>
     <body>
         <div class="container">
@@ -28,15 +24,17 @@
                         </div>
                     </div>
                     <p>Document hash:&nbsp;<span id="hash"></span></p>
-                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
-                    <button type="button" class="btn btn-primary" id="search-button">Search</button>
-                    <div class="spinner-border hidden" role="status" id ="loader">
-                        <span class="sr-only">Loading...</span>
+                    <div class="container text-right">
+                        <button type="button" class="btn btn-primary" id="submit-button" disabled>Submit</button>
+                        <button type="button" class="btn btn-primary" id="search-button" disabled>Search</button>
+                        <div class="spinner-border hidden" role="status" id ="loader">
+                            <span class="sr-only">Loading...</span>
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="alert alert-success hidden" role="alert" id="success-alert">
-            Successfully retrieved document. Block number:&nbsp;<span id="blocknumber"></span>
+            Successfully retrieved document. Date of submission:&nbsp;<span id="blocknumber"></span>
             </div>
             <div class="alert alert-success hidden" role="alert" id="submit-alert">
             Successfully submitted document.
@@ -49,6 +47,9 @@
             </div>
             <div class="alert alert-danger hidden" role="alert" id="error-alert">
             There was an error communicating with the contract.
+            </div>
+            <div class="alert alert-danger hidden" role="alert" id="metamask-alert">
+            To use this website you need to have MetaMask installed. Please visit <a target="_blank" href="https://metamask.io">MetaMask.io</a> for more information.
             </div>
         </div>
     </body>

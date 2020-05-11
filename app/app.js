@@ -1,45 +1,44 @@
-// The object 'Contracts' is injected here, which contains all data for all contracts, keyed on contract name:
-// Contracts['Documents'] = {
-//  abi: [],
-//  address: "0x..",
-//  endpoint: "http://...."
-// }
-
-// Create an instance of the smart contract, passing it as a property,
-// which allows web3js to interact with it.
-function Documents(Contract) {
+// Create an instance of the smart contract, passing it as a property, which allows web3js to interact with it
+function Documents() {
     this.web3 = null;
     this.instance = null;
-    this.Contract = Contract;
 }
 
-// Initialize the `Documents` object and create an instance of the web3js library,
+// Initialize the `Documents` object and create an instance of the web3js library
 Documents.prototype.init = function() {
     // The initialization function defines the interface for the contract using
     // the web3js contract object and then defines the address of the instance
-    // of the contract for the `Documents` object.
+    // of the contract for the `Documents` object
 
-    // Create a new Web3 instance using either the Metamask provider
-    // or an independent provider created as the endpoint configured for the contract.
-    this.web3 = new Web3(
-        (window.web3 && window.web3.currentProvider) ||
-            new Web3.providers.HttpProvider(this.Contract.endpoint)
-    );
+    // Create a new Web3 instance using the Metamask provider
+    if (typeof window.ethereum !== 'undefined') {
+        var that = this;
+        this.web3 = new Web3(ethereum);
+        var contractAddress = '0x13c509AF5a71125Cb12019082500E610b73353ff';
 
-    console.log(this.Contract.address);
+        console.log(this.web3.utils.soliditySha3("document1"));
+        console.log(this.web3.utils.soliditySha3("document2"));
 
-    // Create the contract instance for the specific address provided in the configuration.
-    this.instance = new this.web3.eth.Contract(this.Contract.abi, this.Contract.address);
+        ethereum.enable().then(function (accounts) {
+            // Create the contract instance for the specific address provided in the configuration
+            that.instance = new that.web3.eth.Contract([{"constant":true,"inputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"name":"documents","outputs":[{"internalType":"address","name":"submitter","type":"address"},{"internalType":"bytes32","name":"hash","type":"bytes32"},{"internalType":"uint256","name":"blockNumber","type":"uint256"},{"internalType":"bool","name":"exists","type":"bool"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"bytes32","name":"hash","type":"bytes32"}],"name":"addDocument","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"}], contractAddress);
+        }).catch(function (error) {
+            console.log(error);
+            $("#metamask-alert").show();
+        });
+    } else {
+        $("#metamask-alert").show();
+    }
 };
 
-// Gets the message value stored on the instance of the contract.
+// Gets the message value stored on the instance of the contract
 Documents.prototype.getDocument = function(hash, cb) {
     this.instance.methods.documents(hash).call(function(error, result) {
         cb(error, result);
     });
 };
 
-// Updates the message value on the instance of the contract.
+// Submits the hash of a document on the instance of the contract
 Documents.prototype.submitHash = function() {
     var that = this;
     this.resetAlerts();
@@ -60,7 +59,7 @@ Documents.prototype.submitHash = function() {
             return;
         }
 
-        that.web3.eth.getGasPrice(function(error, result) {
+        that.web3.eth.getGasPrice(function(error, gasPrice) {
             if (error) {
                 console.log(error);
                 that.showLoader(false);
@@ -68,45 +67,52 @@ Documents.prototype.submitHash = function() {
                 return;
             }
 
-            var gasPrice = result;
-
-            that.instance.methods.addDocument(hash).estimateGas({from: window.web3.eth.accounts[0]},
-                function(error, gasAmount) {
-                    if (error) {
-                        console.log(error);
-                        that.showLoader(false);
-                        $("#error-alert").show();
-                        return;
-                    }
-
-                    that.instance.methods.addDocument(hash).send(
-                        {
-                            from: window.web3.eth.accounts[0],
-                            gas: gasAmount,
-                            gasPrice: gasPrice
-                        },
-                        function(error, txHash) {
-                            if (error) {
-                                console.log(error);
-                                that.showLoader(false);
-                                $("#error-alert").show();
-                                return;
-                            }
-
-                            that.waitForReceipt(txHash, function(receipt) {
-                                that.showLoader(false);
-                                if (receipt.status) {
-                                    console.log({ receipt });
-                                    $("#submit-alert").show();
-                                } else {
-                                    console.log("transaction error");
-                                    $("#error-alert").show();
-                                }
-                            });
-                        }
-                    );
+            that.web3.eth.getAccounts(function(error, accounts) {
+                if (error) {
+                    console.log(error);
+                    that.showLoader(false);
+                    $("#error-alert").show();
+                    return;
                 }
-            );
+
+                that.instance.methods.addDocument(hash).estimateGas({from: accounts[0]},
+                    function(error, gasAmount) {
+                        if (error) {
+                            console.log(error);
+                            that.showLoader(false);
+                            $("#error-alert").show();
+                            return;
+                        }
+    
+                        that.instance.methods.addDocument(hash).send(
+                            {
+                                from: accounts[0],
+                                gas: gasAmount,
+                                gasPrice: gasPrice
+                            },
+                            function(error, txHash) {
+                                if (error) {
+                                    console.log(error);
+                                    that.showLoader(false);
+                                    $("#error-alert").show();
+                                    return;
+                                }
+    
+                                that.waitForReceipt(txHash, function(receipt) {
+                                    that.showLoader(false);
+                                    if (receipt.status) {
+                                        console.log({ receipt });
+                                        $("#submit-alert").show();
+                                    } else {
+                                        console.log("transaction error");
+                                        $("#error-alert").show();
+                                    }
+                                });
+                            }
+                        );
+                    }
+                );
+            });
         });
     });
 };
@@ -141,6 +147,7 @@ Documents.prototype.showLoader = function(show) {
     document.getElementById("search-button").style.display = show ? "none" : "inline-block";
 }
 
+// Resets the webpage alerts
 Documents.prototype.resetAlerts = function() {
     $("#success-alert").hide();
     $("#submit-alert").hide();
@@ -149,23 +156,29 @@ Documents.prototype.resetAlerts = function() {
     $("#error-alert").hide();
 };
 
+// Sets the document hash for submission or search
 Documents.prototype.setDocumentHash = function(evt) {
     var that = this;
     if (!window.File || !window.FileReader || !window.FileList) {
-        console.log("error");
+        console.log("File API not supported");
+        return;
     }
 
     var fr = new FileReader();
     var input = evt.target;
+    $('#file-input').next('.custom-file-label').html(input.files[0].name);
 
     fr.onload = function() {
         var hash = that.web3.utils.soliditySha3(fr.result);
         $("#hash").text(hash);
+        $('#submit-button').prop('disabled', false);
+        $('#search-button').prop('disabled', false);
     };
 
     fr.readAsText(input.files[0]);
 };
 
+// Searches the smart contract for a given document hash
 Documents.prototype.searchHash = function() {
     var that = this;
     this.resetAlerts();
@@ -183,19 +196,19 @@ Documents.prototype.searchHash = function() {
             return;
         }
 
-        that.web3.eth.getBlock(new that.web3.utils.BN(result.blockNumber), function(error, result) {
+        that.web3.eth.getBlock(result.blockNumber, function(error, block) {
             if (error) {
                 console.log(error);
                 $("#error-alert").show();
                 return;
             }
-            $("#blocknumber").text(result.timestamp);
+            $("#blocknumber").text(`${new Date(block.timestamp*1000)} (Block number: ${result.blockNumber})`);
             $("#success-alert").show();
         });
     });
 };
 
-// Bind setMessage function to the button defined in app.html
+// Bind event handlers to the buttons defined in app.html
 Documents.prototype.bindButton = function() {
     var that = this;
 
@@ -212,8 +225,6 @@ Documents.prototype.bindButton = function() {
     });
 };
 
-// JavaScript boilerplate to create the instance of the `Documents` object
-// defined above, and show the HTML elements on the page:
 Documents.prototype.main = function() {
     this.resetAlerts();
 };
@@ -224,9 +235,7 @@ Documents.prototype.onReady = function() {
     this.main();
 };
 
-if (typeof Contracts === "undefined")
-    var Contracts = { Documents: { abi: [] } };
-var documents = new Documents(Contracts["Documents"]);
+var documents = new Documents();
 
 $(document).ready(function() {
     documents.onReady();
