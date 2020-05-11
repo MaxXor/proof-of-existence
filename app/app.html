@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <script type="text/javascript" src="https://unpkg.com/jquery@3.5.1/dist/jquery.js"></script>
+        <script type="text/javascript" src="https://unpkg.com/web3@1.2.7/dist/web3.min.js"></script>
+
+        <title>Proof of Existence</title>
+        <!-- The generated javascript and app.js will be substituted in below -->
+        <!-- JAVASCRIPT -->
+
+        <!-- The app.css contents will be substituted in below -->
+        <!-- STYLE -->
+    </head>
+    <body>
+        <div class="container">
+            <h1>Proof of existence</h1>
+            <div class="card">
+                <h5 class="card-header">Select document</h5>
+                <div class="card-body">
+                    <p class="card-text">Submit a document to store its hash in the smart contract or retrieve the timestamp of a submitted document.</p>
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            <input  type="file" class="custom-file-input" id="file-input">
+                            <label class="custom-file-label" for="file-input">Choose document</label>
+                        </div>
+                    </div>
+                    <p>Document hash:&nbsp;<span id="hash"></span></p>
+                    <button type="button" class="btn btn-primary" id="submit-button">Submit</button>
+                    <button type="button" class="btn btn-primary" id="search-button">Search</button>
+                    <div class="spinner-border hidden" role="status" id ="loader">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-success hidden" role="alert" id="success-alert">
+            Successfully retrieved document. Block number:&nbsp;<span id="blocknumber"></span>
+            </div>
+            <div class="alert alert-success hidden" role="alert" id="submit-alert">
+            Successfully submitted document.
+            </div>
+            <div class="alert alert-warning hidden" role="alert" id="existing-alert">
+            The hash of the document has already been submitted. It cannot be submitted again.
+            </div>
+            <div class="alert alert-primary hidden" role="alert" id="notfound-alert">
+            No document with this hash was found.
+            </div>
+            <div class="alert alert-danger hidden" role="alert" id="error-alert">
+            There was an error communicating with the contract.
+            </div>
+        </div>
+    </body>
+</html>
